@@ -1,0 +1,8 @@
+br/edu/ufam/gabsrebelo/WordCount$Args.class
+br/edu/ufam/gabsrebelo/Tokenizer.class
+br/edu/ufam/gabsrebelo/WordCount$1.class
+br/edu/ufam/gabsrebelo/WordCount$MyMapper.class
+br/edu/ufam/gabsrebelo/App.class
+br/edu/ufam/gabsrebelo/WordCount$MyMapperIMC.class
+br/edu/ufam/gabsrebelo/WordCount.class
+br/edu/ufam/gabsrebelo/WordCount$MyReducer.class
