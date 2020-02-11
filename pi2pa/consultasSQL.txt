@@ -1,0 +1,57 @@
+"select data, id_usuario, avaliacao, votos_, votos_de_utilidade from critica JOIN produto ON id_produto = produto.id where produto.id ="+str(idProduto)+" order by avaliacao desc, votos_de_utilidade desc limit 5;"
+
+"select data, id_usuario, avaliacao, votos_, votos_de_utilidade from critica JOIN produto ON id_produto = produto.id where produto.id ="+str(idProduto)+" order by avaliacao, votos_de_utilidade desc limit 5;"
+
+"select * from produto where grupo = 'DVD' order by salesrank desc limit 10;"
+
+"select * from produto where grupo = 'Video' order by salesrank desc limit 10;"
+
+"select * from produto where grupo = 'Music' order by salesrank desc limit 10;"
+
+"select * from produto where grupo = 'Music' order by salesrank desc limit 10;"
+
+"select * from produto where grupo = 'Book' order by salesrank desc limit 10;"
+
+"select titulo,avg(votos_de_utilidade) as media"+
+                " from critica JOIN produto ON produto.id = id_produto"+
+                " group by titulo"+
+                " order by media desc"+
+                " limit 10;"
+
+"select categoria.nome,avg(votos_de_utilidade) as media"+
+                " from critica JOIN produto ON produto.id = critica.id_produto JOIN pertence ON critica.id_produto = pertence.id_produto JOIN categoria ON pertence.id_categoria = categoria.id"+
+                " group by critica.id_produto, categoria.nome"+
+                " order by media desc"+
+                " limit 10;"
+
+print('os 10 clientes que mais fizeram comentários por livros\n')
+    cur.execute("select id_usuario, count(id_usuario) as qtd"+
+                " from critica JOIN produto ON produto.id = id_produto"+
+                " where grupo = 'Book'"+
+                " group by id_usuario"+
+                " order by qtd desc"+
+                " limit 10;")
+
+print('\nos 10 clientes que mais fizeram comentários por DVDs\n')
+    cur.execute("select id_usuario, count(id_usuario) as qtd"+
+                " from critica JOIN produto ON produto.id = id_produto"+
+                " where grupo = 'DVD'"+
+                " group by id_usuario"+
+                " order by qtd desc"+
+                " limit 10;")
+
+print('\nos 10 clientes que mais fizeram comentários por videos\n')
+    cur.execute("select id_usuario, count(id_usuario) as qtd"+
+                " from critica JOIN produto ON produto.id = id_produto"+
+                " where grupo = 'Video'"+
+                " group by id_usuario"+
+                " order by qtd desc"+
+                " limit 10;")
+
+print('\nos 10 clientes que mais fizeram comentários por musicas\n')
+    cur.execute("select id_usuario, count(id_usuario) as qtd"+
+                " from critica JOIN produto ON produto.id = id_produto"+
+                " where grupo = 'Music'"+
+                " group by id_usuario"+
+                " order by qtd desc"+
+                " limit 10;")
