@@ -9,6 +9,9 @@ argparser.add_argument("input", help="input file with products")
 args = argparser.parse_args()
 
 def parse(filename, total):
+    '''
+    Parser que le o .txt e a saida eh um generator dos produtos na estrutura de dicionario
+    '''
     IGNORE_FIELDS = ['Total items', 'reviews']
     f = open(filename, 'r')
     lines = f.readlines()
@@ -64,6 +67,7 @@ def parse(filename, total):
     yield entry
 
 def read_file(file_path):
+
     line_num = sum(1 for line in open(file_path))
     result = []
     for e in parse(file_path, total=line_num):
@@ -76,6 +80,9 @@ product_dict_list = read_file(args.input)
 products = sc.parallelize(product_dict_list)
 
 def reviews(ASIN):
+    '''
+    Funcao que dado produto, lista os 5 comentários mais uteis e com maior avaliacao e os 5 comentarios mais uteis e com menor avaliacao
+    '''
     #filter pra pegar somente o rdd com o ASIN especifico
     product = products.filter(lambda x: x["ASIN"] == ASIN).first()
     #Agora temos um RDD no qual cada elemento eh um comentario.
@@ -92,19 +99,23 @@ def reviews(ASIN):
         print(r)
 
 def similar(ASIN):
+    '''
+    Funcao que dado um produto, lista os produtos similares com maiores vendas do que ele
+    '''
     #RDD chave-valor (ASIN,salesrank)
     prod_ASIN_salesrank = products.filter(lambda x: "salesrank" in x).map(lambda x: (x["ASIN"],int(x["salesrank"])))
-    #obter uma lista de similares
     product = products.filter(lambda x: x["ASIN"] == ASIN).first()
-    #campo "similar", split(" ") e tira o primeiro da lista
+    #obter uma lista de similares
     similars = product["similar"].split("  ")[1:]
     print(similars)
-    #filter sobre o rdd key-value filter(lambda x: x[0] in similars AND x[1]>product["salesrank"])
     similars_more_sales = prod_ASIN_salesrank.filter(lambda x: x[0] in similars and x[1]<int(product["salesrank"])).collect()
     print(similars_more_sales)
 
 
 def avg(a,b):
+    '''
+    funcao usada pelo reduce para calcular a media de avaliacao ao longo do tempo
+    '''
     soma = a[1]+b[1]
     avg = float(soma)/float(b[2]+1)
     #mostra a data e a media para esse dia
@@ -114,7 +125,9 @@ def avg(a,b):
 
 
 def average_ratings(ASIN):
-    #
+    '''
+    Funcao que dado um produto, mostrar a evolucao diaria das medias de avaliacao ao longo do intervalo de tempo
+    '''
     product = products.filter(lambda x: x["ASIN"] == ASIN).first()
     enum = list(enumerate(product["reviews"]))
     reviews = sc.parallelize(enum)
@@ -122,9 +135,11 @@ def average_ratings(ASIN):
     reviews_tuple.reduce(avg)
 
 def sales_leader_1_group(group):
+    '''
+    Funcao que lista os 10 produtos lideres de venda para um grupo de produtos
+    '''
     #map => (group,(salesrank,ASIN))
     products_tuples = products.filter(lambda x: "group" in x and x["group"]==group).map(lambda x: (x["group"],(int(x["salesrank"]),x["ASIN"])))
-    #sortBy pelo salesrank
     leaders_10 = products_tuples.sortBy(lambda x: x[1][0]).take(10)
     print(leaders_10)
     
@@ -144,7 +159,9 @@ def parsing1(x):
     return helpful
 
 def avg_helpful():
-    #map => (ASIN,helpful)
+    '''
+    Funcao que lista os 10 produtos com a maior media de avaliacoes uteis positivas por produto
+    '''
     products_tuple = products.filter(lambda x: "reviews" in x and isinstance(x["reviews"],list))\
                              .flatMap(parsing1)
     total_by_helpful = products_tuple \
@@ -174,7 +191,9 @@ def parsing2(x):
 
 
 def avg_categories():
-    #flatmap => (cat,helpful)
+    '''
+    Funcao que lista as 5 categorias de produto com a maior media de avaliacoes uteis positivas por produto
+    '''
     products_tuple = products.filter(lambda x: "reviews" in x and isinstance(x["reviews"],list))\
                              .flatMap(parsing2)
 
@@ -194,6 +213,9 @@ def parsing3(x):
     return customers
 
 def top_10_customers_reviewers(group):
+    '''
+    Funcao que lista os 10 clientes que mais fizeram comentarios por grupo de produto
+    '''
     customer_tuple = products.filter(lambda x: "group" in x and x["group"]==group)\
                              .filter(lambda x: "reviews" in x and isinstance(x["reviews"],list))\
                              .flatMap(parsing3)
@@ -212,7 +234,7 @@ def customer_reviewers_by_group():
 
 #reviews('0738700797')
 #similar('B000007R0T')
-average_ratings('0738700797')
+#average_ratings('0738700797')
 #sales_leader_10_all_groups()
 #avg_helpful()
 #avg_categories()
